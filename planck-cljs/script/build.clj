@@ -44,6 +44,7 @@
     (slurp (io/resource filename))))
 
 (copy-source "cljs/test.cljc")
+(copy-source "cljs/core/specs/alpha.cljc")
 (copy-source "cljs/spec/alpha.cljc")
 (copy-source "cljs/spec/test/alpha.cljc")
 (copy-source "cljs/spec/test/alpha.cljs")
