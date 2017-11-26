@@ -3,7 +3,7 @@
             [cljs.build.api :as api]
             [cljs.analyzer]
             [cognitect.transit :as transit])
-  (:import [java.io ByteArrayOutputStream FileInputStream]))
+  (:import (java.io ByteArrayOutputStream File FileInputStream)))
 
 (def canary-build? (boolean (System/getenv "CANARY_BUILD")))
 
@@ -41,8 +41,10 @@
 (defn copy-source
   [filename]
   (if-let [resource (io/resource filename)]
-    (spit (str "out/" filename)
-      (slurp resource))
+    (let [out-file (File. "out" filename)]
+      (io/make-parents out-file)
+      (spit out-file
+        (slurp resource)))
     (println "Skipping copying non-existent source:" filename)))
 
 (copy-source "cljs/test.cljc")
