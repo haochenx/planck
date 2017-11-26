@@ -40,11 +40,14 @@
 
 (defn copy-source
   [filename]
-  (spit (str "out/" filename)
-    (slurp (io/resource filename))))
+  (if-let [resource (io/resource filename)]
+    (spit (str "out/" filename)
+      (slurp resource))
+    (println "Skipping copying non-existent source:" filename)))
 
 (copy-source "cljs/test.cljc")
 (copy-source "cljs/core/specs/alpha.cljc")
+(copy-source "cljs/core/specs/alpha.cljs")
 (copy-source "cljs/spec/alpha.cljc")
 (copy-source "cljs/spec/test/alpha.cljc")
 (copy-source "cljs/spec/test/alpha.cljs")
