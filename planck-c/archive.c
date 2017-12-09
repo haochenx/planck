@@ -14,8 +14,9 @@ typedef struct zip_file zip_file_t;
 
 void format_zip_error(const char *prefix, zip_t *zip, char **error_msg);
 
-char *get_contents_zip(const char *path, const char *name, time_t *last_modified, char **error_msg) {
+zip_t* archive[1024];
 
+void* open_archive(const char *path, char **error_msg) {
     zip_t *archive = zip_open(path, ZIP_RDONLY, NULL);
 
     if (archive == NULL && error_msg) {
@@ -25,6 +26,13 @@ char *get_contents_zip(const char *path, const char *name, time_t *last_modified
         }
         return NULL;
     }
+
+    return archive;
+}
+
+char *get_contents_zip(void* archive_p, const char *name, time_t *last_modified, char **error_msg) {
+
+    zip_t *archive = archive_p;
 
     zip_stat_t stat;
     if (zip_stat(archive, name, 0, &stat) < 0) {
@@ -71,7 +79,7 @@ char *get_contents_zip(const char *path, const char *name, time_t *last_modified
     zip_fclose(f);
 
     close_archive:
-    zip_close(archive);
+    //zip_close(archive);
 
     return NULL;
 }

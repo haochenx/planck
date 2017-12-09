@@ -148,7 +148,10 @@ JSValueRef function_load(JSContextRef ctx, JSObjectRef function, JSObjectRef thi
                     struct stat file_stat;
                     if (stat(location, &file_stat) == 0) {
                         char *error_msg = NULL;
-                        contents = get_contents_zip(location, path, &last_modified, &error_msg);
+                        if (!config.src_paths[i].archive) {
+                            config.src_paths[i].archive = open_archive(location, &error_msg);
+                        }
+                        contents = get_contents_zip(config.src_paths[i].archive, path, &last_modified, &error_msg);
                         if (!contents && error_msg) {
                             engine_print(error_msg);
                             engine_print("\n");
@@ -226,7 +229,10 @@ JSValueRef function_load_deps_cljs_files(JSContextRef ctx, JSObjectRef function,
                 struct stat file_stat;
                 if (stat(location, &file_stat) == 0) {
                     char *error_msg = NULL;
-                    char *source = get_contents_zip(location, deps_cljs_filename, NULL, &error_msg);
+                    if (!config.src_paths[i].archive) {
+                        config.src_paths[i].archive = open_archive(location, &error_msg);
+                    }
+                    char *source = get_contents_zip(config.src_paths[i].archive, deps_cljs_filename, NULL, &error_msg);
                     if (source != NULL) {
                         num_files += 1;
                         deps_cljs_files = realloc(deps_cljs_files, num_files * sizeof(char *));
@@ -287,7 +293,9 @@ JSValueRef function_load_from_jar(JSContextRef ctx, JSObjectRef function, JSObje
         JSStringRelease(resource_path_str);
 
         char *error_msg = NULL;
+        void* archive = open_archive(jar_path, &error_msg);
         char *contents = get_contents_zip(jar_path, resource_path, NULL, &error_msg);
+        // todo deal with errors separately, close archive
 
         JSStringRef contents_str = NULL;
         if (contents != NULL) {
